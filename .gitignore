@@ -1,0 +1,45 @@
+# Built variants
+**/build/
+**/bin/
+**/out/
+
+# Android Studio / IntelliJ
+.idea/
+.gradle/
+*.iml
+local.properties
+.DS_Store
+
+# Captures and logs
+captures/
+*.log
+
+# Keystore files
+*.jks
+*.keystore
+
+# External native build artifacts
+.externalNativeBuild/
+.cxx/
+
+# Google Services
+google-services.json
+
+# Navigation Editor temp files
+.navigation/
+
+# Android Studio 3.x-specific
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+
+# CMake
+cmake-build-debug/
+cmake-build-release/
+
+# Project-specific
+.artifacts/
+*.artifact.md

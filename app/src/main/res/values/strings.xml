@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">HALt Privacy</string>
+    <string name="privilege_label">Privilege: %s</string>
+    <string name="lockdown_label">Lockdown: %s</string>
+    <string name="active">Active</string>
+    <string name="inactive">Inactive</string>
+    <string name="system_status">System Status</string>
+    <string name="logs_placeholder">Logs will appear here...</string>
+    <string name="btn_provision">Auto-Provision</string>
+    <string name="btn_enable">Enable Lockdown</string>
+    <string name="btn_disable">Disable Lockdown</string>
+    <string name="btn_tamper_on">Enable Tamper Proofing</string>
+    <string name="btn_tamper_off">Disable Tamper Proofing</string>
+    <string name="provisioning_title">Provisioning Device</string>
+    <string name="provisioning_message">Please wait while the device is being provisioned...</string>
+</resources>
