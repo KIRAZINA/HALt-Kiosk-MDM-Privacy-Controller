@@ -1,4 +1,4 @@
-package com.KIRA_ZINA.haltprivacy.security;
+package com.kira_zina.haltprivacy.security;
 
 import android.app.admin.DeviceAdminReceiver;
 import android.content.Context;

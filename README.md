@@ -43,7 +43,7 @@ If the device is rooted or has ADB shell access enabled:
 #### Pathway B: QR Code (Factory Reset)
 For new or wiped devices:
 1. Tap the setup screen 6 times to launch the QR scanner.
-2. Scan a QR code containing the `EXTRA_PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME` for `com.KIRA_ZINA.haltprivacy.security.EnterpriseSecurityReceiver`.
+2. Scan a QR code containing the `EXTRA_PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME` for `com.kira_zina.haltprivacy.security.EnterpriseSecurityReceiver`.
 
 ### 3. Usage
 *   **Enable Lockdown**: Disables all cameras and restricts the microphone.

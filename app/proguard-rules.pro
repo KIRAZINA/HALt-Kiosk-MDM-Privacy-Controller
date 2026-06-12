@@ -1,21 +1,21 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+-keep class com.kira_zina.haltprivacy.SecureServiceApplication { *; }
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+-keep class com.kira_zina.haltprivacy.security.EnterpriseSecurityReceiver { *; }
+-keep class com.kira_zina.haltprivacy.security.BootCompletedReceiver { *; }
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+-keep class com.kira_zina.haltprivacy.ui.MainActivity { *; }
+-keep class com.kira_zina.haltprivacy.ui.ProvisioningViewModel { *; }
+-keep class com.kira_zina.haltprivacy.provisioning.ProvisioningActivity { *; }
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+-keepclassmembers class * extends androidx.lifecycle.ViewModel {
+    <init>(...);
+}
+
+-keepclassmembers class * extends androidx.lifecycle.LiveData {
+    <init>(...);
+}
+
+-keep class * extends androidx.work.Worker { *; }
+
+-keepattributes *Annotation*
+-keepattributes SourceFile,LineNumberTable

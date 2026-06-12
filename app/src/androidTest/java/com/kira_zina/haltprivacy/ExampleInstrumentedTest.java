@@ -1,4 +1,4 @@
-package com.KIRA_ZINA.haltprivacy;
+package com.kira_zina.haltprivacy;
 
 import android.content.Context;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.KIRA_ZINA.haltprivacy", appContext.getPackageName());
+        assertEquals("com.kira_zina.haltprivacy", appContext.getPackageName());
     }
 }

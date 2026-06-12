@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="card_corner_radius">20dp</dimen>
+    <dimen name="card_margin">12dp</dimen>
+    <dimen name="card_padding">18dp</dimen>
+    <dimen name="button_corner_radius">12dp</dimen>
+    <dimen name="status_dot_size">10dp</dimen>
+    <dimen name="section_spacing">20dp</dimen>
+</resources>

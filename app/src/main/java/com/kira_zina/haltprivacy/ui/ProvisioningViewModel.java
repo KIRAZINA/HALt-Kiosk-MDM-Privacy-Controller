@@ -1,48 +1,77 @@
-package com.KIRA_ZINA.haltprivacy.ui;
+package com.kira_zina.haltprivacy.ui;
 
 import android.app.Application;
+import android.content.Intent;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.KIRA_ZINA.haltprivacy.provisioning.ProvisioningEngine;
-import com.KIRA_ZINA.haltprivacy.security.HardwareControlEngine;
+import com.kira_zina.haltprivacy.provisioning.ProvisioningEngine;
+import com.kira_zina.haltprivacy.security.HardwareControlEngine;
+import com.kira_zina.haltprivacy.security.PrefsManager;
 
-/**
- * ViewModel orchestrating provisioning attempts and hardware restriction state.
- */
 public class ProvisioningViewModel extends AndroidViewModel {
     private final MutableLiveData<String> statusMessage = new MutableLiveData<>("Checking provisioning state...");
-    private final MutableLiveData<Boolean> isLockdownActive = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> isLockdownActive;
     private final MutableLiveData<String> privilegeLevel = new MutableLiveData<>("None");
+    private final MutableLiveData<Intent> provisioningIntent = new MutableLiveData<>(null);
 
     private final ProvisioningEngine provisioningEngine;
     private final HardwareControlEngine hardwareEngine;
+    private final PrefsManager prefsManager;
 
     public ProvisioningViewModel(@NonNull Application application) {
         super(application);
         this.provisioningEngine = new ProvisioningEngine(application);
         this.hardwareEngine = new HardwareControlEngine(application);
+        this.prefsManager = new PrefsManager(application);
+
+        this.isLockdownActive = new MutableLiveData<>(prefsManager.isLockdownActive());
         refreshStatus();
     }
 
     public void attemptAutoProvisioning() {
         ProvisioningEngine.ProvisioningResult result = provisioningEngine.executeProvisioning();
+
         switch (result) {
             case DEVICE_OWNER:
-                statusMessage.postValue("Success: Elevated to Device Owner.");
-                break;
+                statusMessage.postValue("Already Device Owner.");
+                refreshStatus();
+                return;
             case PROFILE_OWNER:
-                statusMessage.postValue("Fallback: Work Profile created (Profile Owner).");
-                break;
-            case PROVISIONING_INITIATED:
-                statusMessage.postValue("Provisioning initiated. Follow system prompts to complete.");
-                break;
-            case FAILED:
-                statusMessage.postValue("Failed: No rooted device, factory reset required, or existing accounts block provisioning.");
-                break;
+                statusMessage.postValue("Already Profile Owner.");
+                refreshStatus();
+                return;
         }
+
+        // Not provisioned — try enterprise provisioning first
+        Intent intent = provisioningEngine.getEnterpriseProvisioningIntent();
+        if (intent != null) {
+            statusMessage.postValue("Launching enterprise provisioning...");
+            provisioningIntent.postValue(intent);
+            return;
+        }
+
+        // Fall back to profile owner
+        intent = provisioningEngine.getProfileOwnerProvisioningIntent();
+        if (intent != null) {
+            statusMessage.postValue("Launching profile provisioning...");
+            provisioningIntent.postValue(intent);
+            return;
+        }
+
+        statusMessage.postValue("Failed: No provisioning method available.");
+    }
+
+    public void onProvisioningResult(boolean success) {
+        if (success) {
+            statusMessage.postValue("Provisioning succeeded. Refreshing status...");
+        } else {
+            statusMessage.postValue("Provisioning was cancelled or failed.");
+        }
+        provisioningIntent.postValue(null);
         refreshStatus();
     }
 
@@ -78,24 +107,27 @@ public class ProvisioningViewModel extends AndroidViewModel {
 
     public void refreshStatus() {
         try {
+            String level;
             if (hardwareEngine.isDeviceOwner()) {
-                privilegeLevel.postValue("Device Owner");
+                level = "Device Owner";
             } else if (hardwareEngine.isProfileOwner()) {
-                privilegeLevel.postValue("Profile Owner");
+                level = "Profile Owner";
             } else {
-                privilegeLevel.postValue("None");
+                level = "None";
             }
+            privilegeLevel.postValue(level);
+            prefsManager.setPrivilegeLevel(level);
 
             boolean lockdownActive = false;
             try {
                 lockdownActive = hardwareEngine.isPrivacyModeEnforced();
             } catch (Exception e) {
-                // Safely fallback if any error occurs during privacy check
                 lockdownActive = false;
             }
             isLockdownActive.postValue(lockdownActive);
+            prefsManager.setLockdownActive(lockdownActive);
+
         } catch (Exception e) {
-            // If refreshStatus fails entirely, set safe defaults
             privilegeLevel.postValue("Unknown");
             isLockdownActive.postValue(false);
         }
@@ -104,4 +136,5 @@ public class ProvisioningViewModel extends AndroidViewModel {
     public LiveData<String> getStatusMessage() { return statusMessage; }
     public LiveData<Boolean> getIsLockdownActive() { return isLockdownActive; }
     public LiveData<String> getPrivilegeLevel() { return privilegeLevel; }
+    public LiveData<Intent> getProvisioningIntent() { return provisioningIntent; }
 }

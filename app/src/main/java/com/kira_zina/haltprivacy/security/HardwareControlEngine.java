@@ -1,4 +1,4 @@
-package com.KIRA_ZINA.haltprivacy.security;
+package com.kira_zina.haltprivacy.security;
 
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
@@ -6,13 +6,9 @@ import android.content.Context;
 import android.os.UserManager;
 import android.util.Log;
 
-/**
- * Engine responsible for applying security profiles and restricting hardware interfaces.
- * Adapts restriction scope based on Device Owner vs Profile Owner privileges.
- */
 public class HardwareControlEngine {
     private static final String TAG = "HardwareControlEngine";
-    private static final String PACKAGE_NAME = "com.KIRA_ZINA.haltprivacy";
+    private static final String PACKAGE_NAME = "com.kira_zina.haltprivacy";
 
     private final DevicePolicyManager devicePolicyManager;
     private final ComponentName adminComponent;
@@ -24,10 +20,6 @@ public class HardwareControlEngine {
         this.adminComponent = new ComponentName(context, EnterpriseSecurityReceiver.class);
     }
 
-    /**
-     * Enforces global or profile-scoped privacy mode by blocking camera layers 
-     * and muting microphone controllers.
-     */
     public void enableHardwarePrivacy() {
         if (!devicePolicyManager.isAdminActive(adminComponent)) {
             Log.e(TAG, "Execution failed: Component is not an active device administrator.");
@@ -35,29 +27,22 @@ public class HardwareControlEngine {
         }
 
         try {
-            // Step 1: Disable all physical camera hardware components
-            if (isDeviceOwner() || isProfileOwner()) {
+            boolean isDO = isDeviceOwner();
+            boolean isPO = isProfileOwner();
+
+            if (isDO || isPO) {
                 devicePolicyManager.setCameraDisabled(adminComponent, true);
-                Log.d(TAG, "Camera access disabled. Scope: " + (isDeviceOwner() ? "Global" : "Work Profile"));
+                Log.d(TAG, "Camera access disabled. Scope: " + (isDO ? "Global" : "Work Profile"));
             }
 
-            // Step 2: Restrict user from unmuting the microphone interface
-            if (isDeviceOwner()) {
+            if (isDO) {
                 devicePolicyManager.addUserRestriction(adminComponent, UserManager.DISALLOW_UNMUTE_MICROPHONE);
-                Log.d(TAG, "Microphone unmute restricted globally.");
-            }
-
-            // Step 3: Android 12 Specific Protection - Lock down privacy quick setting toggles
-            if (isDeviceOwner()) {
                 devicePolicyManager.addUserRestriction(adminComponent, UserManager.DISALLOW_CAMERA_TOGGLE);
                 devicePolicyManager.addUserRestriction(adminComponent, UserManager.DISALLOW_MICROPHONE_TOGGLE);
-                Log.d(TAG, "Android 12 privacy toggles locked out.");
+                Log.d(TAG, "Android 12 privacy toggles locked out globally.");
             }
 
-            // Step 4: Profile Owner specific restrictions (within work profile scope)
-            if (isProfileOwner()) {
-                devicePolicyManager.setCameraDisabled(adminComponent, true);
-                // Note: DISALLOW_UNMUTE_MICROPHONE may have limited scope in Profile Owner mode
+            if (isPO) {
                 devicePolicyManager.addUserRestriction(adminComponent, UserManager.DISALLOW_CAMERA_TOGGLE);
                 Log.d(TAG, "Work Profile hardware restrictions applied.");
             }
@@ -67,9 +52,6 @@ public class HardwareControlEngine {
         }
     }
 
-    /**
-     * Lifts applied hardware restrictions, restoring camera and microphone capabilities.
-     */
     public void disableHardwarePrivacy() {
         if (!devicePolicyManager.isAdminActive(adminComponent)) {
             Log.e(TAG, "Execution failed: Component is not an active device administrator.");
@@ -89,12 +71,7 @@ public class HardwareControlEngine {
         }
     }
 
-    /**
-     * Validates if the device privacy lockdown is actively enforced.
-     * Returns false safely if admin is not active or if SecurityException occurs.
-     */
     public boolean isPrivacyModeEnforced() {
-        // Prevent SecurityException if admin is not yet active
         if (!isAdminActive()) {
             Log.d(TAG, "Admin not active; privacy mode cannot be enforced yet.");
             return false;
@@ -120,10 +97,6 @@ public class HardwareControlEngine {
         return devicePolicyManager.isAdminActive(adminComponent);
     }
 
-    /**
-     * Enables tamper-proofing measures including uninstall blocking and kiosk mode.
-     * Should be called after successful Device Owner provisioning.
-     */
     public void enableTamperProofing() {
         if (!isDeviceOwner() || !devicePolicyManager.isAdminActive(adminComponent)) {
             Log.e(TAG, "Tamper-proofing requires Device Owner privileges.");
@@ -142,9 +115,6 @@ public class HardwareControlEngine {
         }
     }
 
-    /**
-     * Disables tamper-proofing measures when removing device restrictions.
-     */
     public void disableTamperProofing() {
         if (!isDeviceOwner() || !devicePolicyManager.isAdminActive(adminComponent)) {
             return;

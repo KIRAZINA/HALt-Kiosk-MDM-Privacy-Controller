@@ -1,8 +1,8 @@
-package com.KIRA_ZINA.haltprivacy.provisioning;
+package com.kira_zina.haltprivacy.provisioning;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
-import com.KIRA_ZINA.haltprivacy.R;
+import com.kira_zina.haltprivacy.R;
 
 /**
  * Activity for QR/NFC Android Enterprise enrollment.
