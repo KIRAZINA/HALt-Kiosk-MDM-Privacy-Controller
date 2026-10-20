@@ -6,6 +6,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.work.Configuration;
 
+import com.kira_zina.haltprivacy.security.TamperDetection;
+
 public class SecureServiceApplication extends Application implements Configuration.Provider {
     private static final String TAG = "HALtPrivacyApp";
 
@@ -38,5 +40,28 @@ public class SecureServiceApplication extends Application implements Configurati
                 System.exit(10);
             }
         });
+
+        enforceTrustedBinary();
+    }
+
+    /**
+     * Refuses to continue running when the APK signature cannot be trusted.
+     *
+     * <p>The check is a no-op for debug builds and for release builds that have
+     * not yet had {@link TamperDetection#EXPECTED_SIGNATURE_HASH} configured;
+     * both cases log a warning and continue. When a signature mismatch is
+     * detected in an enforcing build, initialization is aborted: the process
+     * must not run a device policy controller that was signed by an unknown
+     * party.</p>
+     */
+    private void enforceTrustedBinary() {
+        if (TamperDetection.verifyAppSignature(this)) {
+            return;
+        }
+
+        Log.e(TAG, "CRITICAL: APK signature verification FAILED. "
+                + "Refusing to initialize — this build may have been tampered with.");
+        throw new SecurityException(
+                "HALt Privacy: APK signature verification failed. Initialization aborted.");
     }
 }

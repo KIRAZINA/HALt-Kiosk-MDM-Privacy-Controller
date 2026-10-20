@@ -22,6 +22,10 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class TamperDetectionTest {
 
+    /** A syntactically valid but deliberately non-matching expected certificate hash. */
+    private static final String EXPECTED_HASH =
+            "0000000000000000000000000000000000000000000000000000000000000000";
+
     @Mock private Context mockContext;
     @Mock private PackageManager mockPm;
     @Mock private SigningInfo mockSigningInfo;
@@ -45,13 +49,37 @@ public class TamperDetectionTest {
     @Test
     public void verifyAppSignature_whenHashMismatch_returnsFalse() {
         when(mockSignature.toByteArray()).thenReturn("anything".getBytes());
-        assertFalse(TamperDetection.verifyAppSignature(mockContext));
+        assertFalse(TamperDetection.verifyAppSignatureStrict(mockContext, EXPECTED_HASH));
     }
 
     @Test
     public void verifyAppSignature_whenNoSigningInfo_returnsFalse() {
         packageInfo.signingInfo = null;
-        assertFalse(TamperDetection.verifyAppSignature(mockContext));
+        assertFalse(TamperDetection.verifyAppSignatureStrict(mockContext, EXPECTED_HASH));
+    }
+
+    @Test
+    public void verifyAppSignatureStrict_whenHashMatches_returnsTrue() throws Exception {
+        byte[] certBytes = "release-certificate".getBytes();
+        when(mockSignature.toByteArray()).thenReturn(certBytes);
+        assertTrue(TamperDetection.verifyAppSignatureStrict(mockContext, sha256Hex(certBytes)));
+    }
+
+    @Test
+    public void verifyAppSignature_whenDebugBuild_bypassesCheck() {
+        when(mockSignature.toByteArray()).thenReturn("anything".getBytes());
+        assertTrue(TamperDetection.verifyAppSignature(mockContext, true));
+    }
+
+    @Test
+    public void verifyAppSignature_whenExpectedHashUnset_bypassesCheck() {
+        when(mockSignature.toByteArray()).thenReturn("anything".getBytes());
+        assertTrue(TamperDetection.verifyAppSignature(mockContext, false));
+    }
+
+    @Test
+    public void isExpectedHashUnset_isTrue_whilePlaceholderIsConfigured() {
+        assertTrue(TamperDetection.isExpectedHashUnset());
     }
 
     @Test
@@ -77,6 +105,16 @@ public class TamperDetectionTest {
         }
         String expected = sb.toString();
         assertEquals(expected, invokeComputeSha256("hello".getBytes()));
+    }
+
+    private static String sha256Hex(byte[] data) throws Exception {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] digest = md.digest(data);
+        StringBuilder sb = new StringBuilder();
+        for (byte b : digest) {
+            sb.append(String.format("%02X", b));
+        }
+        return sb.toString();
     }
 
     private static String invokeComputeSha256(byte[] data) {

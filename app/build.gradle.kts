@@ -56,6 +56,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata:2.6.2")
     implementation("androidx.work:work-runtime:2.9.1")
     testImplementation(libs.junit)
+    testImplementation(libs.arch.core.testing)
     testImplementation("org.mockito:mockito-core:5.12.0")
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)

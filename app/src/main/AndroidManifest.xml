@@ -26,6 +26,11 @@
                 tools:node="remove" />
         </provider>
 
+        <!-- Android Enterprise managed configuration schema -->
+        <meta-data
+            android:name="android.content.APP_RESTRICTIONS"
+            android:resource="@xml/app_restrictions" />
+
         <activity
             android:name=".ui.MainActivity"
             android:exported="true">
@@ -65,6 +70,14 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".security.RestrictionsReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.APPLICATION_RESTRICTIONS_CHANGED" />
             </intent-filter>
         </receiver>
 

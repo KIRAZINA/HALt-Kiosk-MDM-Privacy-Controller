@@ -17,6 +17,7 @@ public class PolicyRecoveryWorker extends Worker {
     @Override
     public Result doWork() {
         HardwareControlEngine engine = new HardwareControlEngine(getApplicationContext());
+        PrefsManager prefsManager = new PrefsManager(getApplicationContext());
 
         if (!engine.isAdminActive()) {
             Log.w(TAG, "Admin not active after boot. Waiting for user to open app.");
@@ -25,6 +26,16 @@ public class PolicyRecoveryWorker extends Worker {
 
         if (engine.isDeviceOwner() || engine.isProfileOwner()) {
             engine.enableHardwarePrivacy();
+
+            // A timed lockout survives the reboot: the deadline is persisted,
+            // so the kiosk configuration has to be re-applied as well.
+            if (prefsManager.isTimedLockoutActive()) {
+                long remaining = prefsManager.getLockoutEndTimestamp() - System.currentTimeMillis();
+                Log.i(TAG, "Timed lockout still active after boot (" + remaining + " ms left). "
+                        + "Re-enforcing kiosk mode.");
+                engine.enableTamperProofing(prefsManager.getAllowedKioskPackages());
+            }
+
             Log.i(TAG, "Hardware privacy re-applied after boot.");
             return Result.success();
         }

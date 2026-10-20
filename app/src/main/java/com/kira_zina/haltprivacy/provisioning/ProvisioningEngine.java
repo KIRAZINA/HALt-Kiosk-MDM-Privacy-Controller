@@ -10,28 +10,30 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
 
+import com.kira_zina.haltprivacy.AppIdentity;
 import com.kira_zina.haltprivacy.security.EnterpriseSecurityReceiver;
 
 public class ProvisioningEngine {
     private static final String TAG = "ProvisioningEngine";
-    private static final String PACKAGE_NAME = "com.kira_zina.haltprivacy";
 
     private final DevicePolicyManager dpm;
     private final ComponentName adminComponent;
     private final Context context;
+    private final String packageName;
 
     public ProvisioningEngine(Context context) {
         this.context = context.getApplicationContext();
         this.dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
         this.adminComponent = new ComponentName(context, EnterpriseSecurityReceiver.class);
+        this.packageName = AppIdentity.packageName(this.context);
     }
 
     public ProvisioningResult executeProvisioning() {
-        if (dpm.isDeviceOwnerApp(PACKAGE_NAME)) {
+        if (dpm.isDeviceOwnerApp(packageName)) {
             Log.i(TAG, "Already Device Owner.");
             return ProvisioningResult.DEVICE_OWNER;
         }
-        if (dpm.isProfileOwnerApp(PACKAGE_NAME)) {
+        if (dpm.isProfileOwnerApp(packageName)) {
             Log.i(TAG, "Already Profile Owner.");
             return ProvisioningResult.PROFILE_OWNER;
         }

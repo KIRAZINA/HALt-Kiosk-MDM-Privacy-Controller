@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Android Enterprise managed configuration schema.
+
+    The device management console (EMM) reads this file to learn which
+    restrictions it may push to the DPC. The keys defined here are parsed by
+    com.kira_zina.haltprivacy.security.ManagedConfigManager.
+-->
+<restrictions xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <restriction
+        android:key="hardware_privacy_enabled"
+        android:title="@string/restriction_hardware_privacy_title"
+        android:description="@string/restriction_hardware_privacy_description"
+        android:restrictionType="bool"
+        android:defaultValue="false" />
+
+    <restriction
+        android:key="kiosk_mode_enabled"
+        android:title="@string/restriction_kiosk_mode_title"
+        android:description="@string/restriction_kiosk_mode_description"
+        android:restrictionType="bool"
+        android:defaultValue="false" />
+
+    <!--
+        The platform restriction types are: hidden, bool, choice, multi-select,
+        integer, string, bundle and bundle_array. There is no "string_array"
+        type, so the allowlist is declared as "multi-select": the management
+        console pushes the selected entries as a String[].
+    -->
+    <restriction
+        android:key="kiosk_allowed_packages"
+        android:title="@string/restriction_kiosk_allowed_packages_title"
+        android:description="@string/restriction_kiosk_allowed_packages_description"
+        android:restrictionType="multi-select" />
+
+    <restriction
+        android:key="timed_lockout_duration_minutes"
+        android:title="@string/restriction_timed_lockout_title"
+        android:description="@string/restriction_timed_lockout_description"
+        android:restrictionType="integer"
+        android:defaultValue="0" />
+
+</restrictions>
